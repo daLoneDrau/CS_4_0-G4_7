@@ -10,6 +10,7 @@ extends Scene
 
 @onready var _backdrop: ColorRect = %Backdrop
 @onready var _title_label: Label = %TitleLabel
+@onready var _menu_list: VBoxContainer = %MenuList
 
 
 func _ready() -> void:
@@ -25,7 +26,10 @@ func _ready() -> void:
 
 func on_enter() -> void:
 	_apply_logotype_font()
-# Menu content/glow/input wiring: later build steps.
+	_apply_menu_font()
+# Glow effect (§3/§6), keyboard/mouse input wiring (§6), and Start's
+# actual scene-transition connection (§7) are later build steps —
+# the menu exists structurally here but isn't wired to anything yet.
 
 
 ## Applies the display face (IM Fell English, GDD §1.2) to the title text.
@@ -40,6 +44,26 @@ func _apply_logotype_font() -> void:
 		_title_label.add_theme_font_override("font", font)
 	else:
 		push_warning("TitleScreen: display font (IM Fell English) not loaded — check res://assets/fonts/IMFellEnglish-Regular.ttf exists.")
+
+
+## Applies the UI face (EB Garamond, GDD §1.2) to every menu item. Per the
+## same functional-text rule cited above: menu text is content the player
+## must read/parse precisely, so it uses the UI face, not the display face,
+## and never receives the PS1 vertex-warp treatment.
+##
+## Disabled-state visuals (Continue/Settings/Credits per §5 — "visibly
+## present but non-functional," dimmed opacity only, no lock icon) are set
+## declaratively in the scene file itself (modulate alpha + disabled=true),
+## not here — nothing about that state depends on the font load succeeding
+## or failing.
+func _apply_menu_font() -> void:
+	var font: FontFile = CSGameEngine_auto.assets.get_font("ui", false)
+	if font:
+		for child: Node in _menu_list.get_children():
+			if child is Button:
+				(child as Button).add_theme_font_override("font", font)
+	else:
+		push_warning("TitleScreen: UI font (EB Garamond) not loaded — check res://assets/fonts/EBGaramond-static/EBGaramond-Regular.ttf exists.")
 
 
 ## Required override — Scene.do_action() is abstract. Real input-action
