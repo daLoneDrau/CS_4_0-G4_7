@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://cm1emx7hifh15"]
+
+[ext_resource type="Script" uid="uid://cxvx8hioofcjq" path="res://scripts/scenes/title/title_screen.gd" id="1_05wk3"]
+
+[node name="TitleScreen" type="Node" unique_id=1988397965]
+script = ExtResource("1_05wk3")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=490794226]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.35, 0.32, 0.3, 1)
