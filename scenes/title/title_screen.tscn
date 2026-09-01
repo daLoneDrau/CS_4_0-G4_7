@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cxvx8hioofcjq" path="res://scripts/scenes/title/title_screen.gd" id="1_05wk3"]
 [ext_resource type="Shader" uid="uid://c3glr6ki8o2yv" path="res://shaders/text_glow.gdshader" id="2_ynr0n"]
+[ext_resource type="Script" uid="uid://812udxdlvtoj" path="res://daLoneDrau-GDEng-ECS/ui/ui_animation_node.gd" id="3_iowo3"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ynr0n"]
 shader = ExtResource("2_ynr0n")
@@ -114,10 +115,18 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="StartButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=1801794179]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_05wk3")
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Start"
+
+[node name="GlowHover" type="Node" parent="UI/MenuAnchor/MenuList/StartButton" unique_id=1396605607]
+script = ExtResource("3_iowo3")
+hover_duration = 0.05
+hover_shader_parameter = "glow_intensity"
+hover_shader_parameter_type = 3
+hover_shader_parameter_float_setting = 2.0
 
 [node name="ContinueButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=1327899823]
 modulate = Color(1, 1, 1, 0.45)
