@@ -8,7 +8,7 @@ extends Scene
 ## menu (§5), glow (§3/§6), input (§6), and transition (§7) are later build
 ## steps — none of that lives here yet.
 
-@onready var _backdrop: ColorRect = $Backdrop
+@onready var _backdrop: ColorRect = %Backdrop
 
 
 func _ready() -> void:

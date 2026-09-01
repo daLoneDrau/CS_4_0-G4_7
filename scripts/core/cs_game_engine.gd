@@ -8,7 +8,6 @@ extends GameEngine
 
 func _ready() -> void:
 	super._ready()  # sets process_mode, running = true, caches `window`
-	entity_manager = get_node("/root/CSEntityManager")
 	run()  # GameEngine.run(): _initialize_systems() -> load_resources() -> _setup_window() -> _start_game()
 
 
@@ -64,5 +63,5 @@ func load_resources() -> void:
 	if not assets.add_font("display", "res://assets/fonts/IMFellEnglish-Regular.ttf"):
 		push_warning("CSGameEngine: display font (IM Fell English) not found at res://assets/fonts/ yet.")
 
-	if not assets.add_font("ui", "res://assets/fonts/EBGaramond-Regular.ttf"):
+	if not assets.add_font("ui", "res://assets/fonts/EBGaramond-static/EBGaramond-Regular.ttf"):
 		push_warning("CSGameEngine: UI font (EB Garamond) not found at res://assets/fonts/ yet.")
