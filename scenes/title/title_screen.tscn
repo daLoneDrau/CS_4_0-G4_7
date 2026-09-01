@@ -1,6 +1,37 @@
 [gd_scene format=3 uid="uid://cm1emx7hifh15"]
 
 [ext_resource type="Script" uid="uid://cxvx8hioofcjq" path="res://scripts/scenes/title/title_screen.gd" id="1_05wk3"]
+[ext_resource type="Shader" uid="uid://c3glr6ki8o2yv" path="res://shaders/text_glow.gdshader" id="2_ynr0n"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ynr0n"]
+shader = ExtResource("2_ynr0n")
+shader_parameter/glow_radius = 1.5
+shader_parameter/glow_color = Color(0.95, 0.9, 0.78, 1)
+shader_parameter/glow_intensity = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_05wk3"]
+shader = ExtResource("2_ynr0n")
+shader_parameter/glow_radius = 1.5
+shader_parameter/glow_color = Color(0.95, 0.9, 0.78, 1)
+shader_parameter/glow_intensity = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iowo3"]
+shader = ExtResource("2_ynr0n")
+shader_parameter/glow_radius = 1.5
+shader_parameter/glow_color = Color(0.95, 0.9, 0.78, 1)
+shader_parameter/glow_intensity = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qrms8"]
+shader = ExtResource("2_ynr0n")
+shader_parameter/glow_radius = 1.5
+shader_parameter/glow_color = Color(0.95, 0.9, 0.78, 1)
+shader_parameter/glow_intensity = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8xedo"]
+shader = ExtResource("2_ynr0n")
+shader_parameter/glow_radius = 1.5
+shader_parameter/glow_color = Color(0.95, 0.9, 0.78, 1)
+shader_parameter/glow_intensity = 1.0
 
 [node name="TitleScreen" type="Node" unique_id=1988397965]
 script = ExtResource("1_05wk3")
@@ -45,6 +76,7 @@ alignment = 1
 
 [node name="TitleLabel" type="Label" parent="UI/LogotypeAnchor/LogotypeBlock" unique_id=1686054910]
 unique_name_in_owner = true
+material = SubResource("ShaderMaterial_ynr0n")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.87, 0.83, 0.76, 1)
 theme_override_font_sizes/font_size = 48
@@ -82,12 +114,14 @@ theme_override_constants/separation = 8
 alignment = 1
 
 [node name="StartButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=1801794179]
+material = SubResource("ShaderMaterial_05wk3")
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Start"
 
 [node name="ContinueButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=1327899823]
 modulate = Color(1, 1, 1, 0.45)
+material = SubResource("ShaderMaterial_iowo3")
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 disabled = true
@@ -95,6 +129,7 @@ text = "Continue"
 
 [node name="SettingsButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=1270137511]
 modulate = Color(1, 1, 1, 0.45)
+material = SubResource("ShaderMaterial_qrms8")
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 disabled = true
@@ -102,6 +137,7 @@ text = "Settings"
 
 [node name="CreditsButton" type="Button" parent="UI/MenuAnchor/MenuList" unique_id=986177057]
 modulate = Color(1, 1, 1, 0.45)
+material = SubResource("ShaderMaterial_8xedo")
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 disabled = true
