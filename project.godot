@@ -24,8 +24,10 @@ CSGameEngine_auto="*res://scripts/core/cs_game_engine.gd"
 
 [display]
 
+window/size/viewport_width=960
+window/size/viewport_height=540
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep"
 
 [physics]
 

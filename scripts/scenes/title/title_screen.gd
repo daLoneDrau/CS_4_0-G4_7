@@ -9,6 +9,7 @@ extends Scene
 ## steps — none of that lives here yet.
 
 @onready var _backdrop: ColorRect = %Backdrop
+@onready var _title_label: Label = %TitleLabel
 
 
 func _ready() -> void:
@@ -23,8 +24,22 @@ func _ready() -> void:
 
 
 func on_enter() -> void:
-	# Populated in later build steps (layout, logotype, menu, input wiring).
-	pass
+	_apply_logotype_font()
+# Menu content/glow/input wiring: later build steps.
+
+
+## Applies the display face (IM Fell English, GDD §1.2) to the title text.
+## Per the decorative-vs-functional chrome heuristic (CHARACTER_CREATION_UI_UX.md
+## §3, referenced by TITLE_SCREEN_UI_UX.md §4): the logotype TEXT is legible
+## content and stays clean — only the divider ornament (already tagged with
+## the "decorative_chrome" group in the scene) is warp-eligible once the PS1
+## vertex-warp shader exists (separate render-pipeline build step).
+func _apply_logotype_font() -> void:
+	var font: FontFile = CSGameEngine_auto.assets.get_font("display", false)
+	if font:
+		_title_label.add_theme_font_override("font", font)
+	else:
+		push_warning("TitleScreen: display font (IM Fell English) not loaded — check res://assets/fonts/IMFellEnglish-Regular.ttf exists.")
 
 
 ## Required override — Scene.do_action() is abstract. Real input-action

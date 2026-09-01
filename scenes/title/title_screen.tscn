@@ -13,3 +13,56 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.35, 0.32, 0.3, 1)
+
+[node name="UI" type="Control" parent="." unique_id=2088486956]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LogotypeAnchor" type="Control" parent="UI" unique_id=1208951213]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 0.333333
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LogotypeBlock" type="VBoxContainer" parent="UI/LogotypeAnchor" unique_id=1865337636]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="UI/LogotypeAnchor/LogotypeBlock" unique_id=1686054910]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.87, 0.83, 0.76, 1)
+theme_override_font_sizes/font_size = 48
+text = "Chivalry & Sorcery"
+horizontal_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="UI/LogotypeAnchor/LogotypeBlock" unique_id=375994956 groups=["decorative_chrome"]]
+custom_minimum_size = Vector2(240, 2)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+color = Color(0.72, 0.68, 0.6, 1)
+
+[node name="MenuAnchor" type="Control" parent="UI" unique_id=971969496]
+layout_mode = 1
+anchor_top = 0.666667
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
