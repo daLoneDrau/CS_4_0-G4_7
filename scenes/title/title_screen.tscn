@@ -118,12 +118,13 @@ alignment = 1
 unique_name_in_owner = true
 material = SubResource("ShaderMaterial_05wk3")
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 22
 text = "Start"
 
 [node name="GlowHover" type="Node" parent="UI/MenuAnchor/MenuList/StartButton" unique_id=1396605607]
 script = ExtResource("3_iowo3")
-hover_duration = 0.05
+hover_duration = 0.001
 hover_shader_parameter = "glow_intensity"
 hover_shader_parameter_type = 3
 hover_shader_parameter_float_setting = 2.0

@@ -12,6 +12,26 @@ extends Scene
 @onready var _title_label: Label = %TitleLabel
 @onready var _menu_list: VBoxContainer = %MenuList
 
+## Keyboard-focus target value for a menu item's glow_intensity shader
+## parameter. Kept in sync with StartButton/GlowHover's
+## hover_shader_parameter_float_setting in the scene file BY HAND — both
+## represent the same "focused" glow target (§6: focus, whether via hover
+## or keyboard, increases the same glow). If one changes, update the other.
+const FOCUS_GLOW_INTENSITY: float = 2.0
+const BASELINE_GLOW_INTENSITY: float = 1.0
+
+## Buttons that are actually keyboard-reachable (disabled == false), in
+## menu order. Currently just [StartButton] — Continue/Settings/Credits are
+## disabled per §5, and §6 explicitly excludes disabled items from keyboard
+## focus order. Built generically (filtered from MenuList's children, not
+## hardcoded to Start) so this doesn't need rewriting once more items are
+## enabled post-MVP.
+var _reachable_buttons: Array[Button] = []
+
+## Index into _reachable_buttons of the currently keyboard-focused item.
+## -1 means nothing focused yet.
+var _focused_menu_index: int = -1
+
 
 func _ready() -> void:
 	# NOTE ON on_enter()/on_exit(): Scene (engine/scene.gd) declares these as
@@ -27,9 +47,11 @@ func _ready() -> void:
 func on_enter() -> void:
 	_apply_logotype_font()
 	_apply_menu_font()
-# Glow effect (§3/§6), keyboard/mouse input wiring (§6), and Start's
-# actual scene-transition connection (§7) are later build steps —
-# the menu exists structurally here but isn't wired to anything yet.
+	_setup_menu_input()
+# Start's actual scene-transition connection (§7's fog-fade transition
+# into Character Creation chunk 1) is the next build step — Start's
+# `pressed` signal already funnels here via _on_start_pressed(), which
+# is currently just a placeholder.
 
 
 ## Applies the display face (IM Fell English, GDD §1.2) to the title text.
@@ -66,8 +88,95 @@ func _apply_menu_font() -> void:
 		push_warning("TitleScreen: UI font (EB Garamond) not loaded — check res://assets/fonts/EBGaramond-static/EBGaramond-Regular.ttf exists.")
 
 
-## Required override — Scene.do_action() is abstract. Real input-action
-## routing (§6: keyboard nav skipping disabled items, confirm) is a later
-## build step; this is a safe no-op until then, not a forgotten stub.
-func do_action(_action: GameAction) -> void:
-	pass
+## Required override — Scene.do_action() is abstract. This is where the
+## custom keyboard action-map system (registered below in _setup_menu_input)
+## actually gets handled. Mouse click/hover are separate — Buttons handle
+## click natively, and hover-glow is UiAnimationNode (scene file), not this.
+func do_action(action: GameAction) -> void:
+	if not action.is_pressed():
+		return  # react on key-down only; ignore the matching key-up event
+	match action.name:
+		"menu_up":
+			_move_menu_focus(-1)
+		"menu_down":
+			_move_menu_focus(1)
+		"menu_confirm":
+			_confirm_menu_focus()
+
+
+## Registers keyboard actions (§6: arrow-key navigation + confirm) and
+## establishes initial keyboard focus. Also connects StartButton's `pressed`
+## signal once, so mouse click and keyboard-confirm both funnel through the
+## same _on_start_pressed() — native Button click handling already covers
+## the mouse half; this only adds the keyboard half.
+func _setup_menu_input() -> void:
+	_reachable_buttons.clear()
+	for child: Node in _menu_list.get_children():
+		if child is Button and not (child as Button).disabled:
+			_reachable_buttons.append(child as Button)
+
+	register_action("Up", "menu_up")
+	register_action("Down", "menu_down")
+	register_action("Enter", "menu_confirm")
+	register_action("Space", "menu_confirm")
+
+	# Start pre-focused on scene entry, since it's the sole reachable item —
+	# standard "first/only actionable item highlighted by default" menu
+	# convention, not requiring an initial keystroke to reveal itself.
+	if not _reachable_buttons.is_empty():
+		_set_menu_focus(0)
+
+	var start_button: Button = %StartButton
+	if start_button and not start_button.pressed.is_connected(_on_start_pressed):
+		start_button.pressed.connect(_on_start_pressed)
+
+
+## Moves keyboard focus by `delta` within _reachable_buttons, clamped (no
+## wraparound) at either end. With only Start currently reachable this is
+## presently always a no-op — kept general rather than special-cased so it
+## starts working correctly the moment more items are enabled post-MVP,
+## with no rewrite needed here.
+func _move_menu_focus(delta: int) -> void:
+	if _reachable_buttons.is_empty():
+		return
+	var new_index: int = clampi(_focused_menu_index + delta, 0, _reachable_buttons.size() - 1)
+	if new_index != _focused_menu_index:
+		_set_menu_focus(new_index)
+
+
+## Sets keyboard focus to _reachable_buttons[index], reverting the
+## previously-focused item's glow to baseline and raising the new one.
+##
+## KNOWN MINOR EDGE CASE: this and UiAnimationNode's mouse-hover tween both
+## drive the same glow_intensity parameter independently. If the mouse
+## hovers then leaves Start while it's ALSO keyboard-focused, mouse_exited
+## will revert glow to baseline even though keyboard focus is still active
+## — the two aren't unified into one focus-state source of truth. Minor/
+## rare in practice with a single reachable item; worth a proper unified
+## focus manager if this becomes a real problem once more items exist.
+func _set_menu_focus(index: int) -> void:
+	if _focused_menu_index >= 0 and _focused_menu_index < _reachable_buttons.size():
+		_set_button_glow(_reachable_buttons[_focused_menu_index], BASELINE_GLOW_INTENSITY)
+	_focused_menu_index = index
+	_set_button_glow(_reachable_buttons[_focused_menu_index], FOCUS_GLOW_INTENSITY)
+
+
+func _set_button_glow(button: Button, intensity: float) -> void:
+	if button.material is ShaderMaterial:
+		(button.material as ShaderMaterial).set_shader_parameter("glow_intensity", intensity)
+
+
+## Activates whichever button currently holds keyboard focus — the
+## keyboard-confirm equivalent of a mouse click.
+func _confirm_menu_focus() -> void:
+	if _focused_menu_index < 0 or _focused_menu_index >= _reachable_buttons.size():
+		return
+	_reachable_buttons[_focused_menu_index].pressed.emit()
+
+
+## Fires on Start being pressed, by mouse OR keyboard confirm (both funnel
+## here — see _setup_menu_input). Actual scene transition (§7's fog-fade
+## into Character Creation chunk 1) is the next build step; this is a
+## placeholder so both input paths already share one hook to fill in.
+func _on_start_pressed() -> void:
+	print("TitleScreen: Start pressed (transition not wired yet — next build step).")
