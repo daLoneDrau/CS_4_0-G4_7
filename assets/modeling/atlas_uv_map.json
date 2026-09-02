@@ -1,0 +1,44 @@
+{
+  "atlas_wood": {
+    "pixel_rect": {
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "uv_rect": {
+      "u_min": 0.0,
+      "v_min": 0.5,
+      "u_max": 0.5,
+      "v_max": 1.0
+    }
+  },
+  "atlas_earth": {
+    "pixel_rect": {
+      "x": 256,
+      "y": 0,
+      "width": 256,
+      "height": 256
+    },
+    "uv_rect": {
+      "u_min": 0.5,
+      "v_min": 0.5,
+      "u_max": 1.0,
+      "v_max": 1.0
+    }
+  },
+  "atlas_wood_top": {
+    "pixel_rect": {
+      "x": 0,
+      "y": 256,
+      "width": 128,
+      "height": 128
+    },
+    "uv_rect": {
+      "u_min": 0.0,
+      "v_min": 0.25,
+      "u_max": 0.25,
+      "v_max": 0.5
+    }
+  }
+}

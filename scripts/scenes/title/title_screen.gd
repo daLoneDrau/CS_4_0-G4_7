@@ -11,6 +11,20 @@ extends Scene
 @onready var _backdrop: ColorRect = %Backdrop
 @onready var _title_label: Label = %TitleLabel
 @onready var _menu_list: VBoxContainer = %MenuList
+@onready var _fade_overlay: ColorRect = %FadeOverlay
+
+## STAND-IN for the scene's real fog color (§1/§7 — transition fades through
+## the same fog color used for ambient atmosphere, "one fog definition, not
+## two"). No real fog exists yet — the backdrop is still the flat
+## placeholder ColorRect from the scene-skeleton build step, not an actual
+## rendered fog. This just reuses that placeholder's color so the fade has
+## SOMETHING coherent to go to. MUST be replaced with the real fog color
+## once the render pipeline exists — this is not a settled design choice.
+const TRANSITION_FOG_COLOR: Color = Color(0.35, 0.32, 0.3, 1.0)
+
+## Fade duration in seconds. Placeholder-tunable, same caveat as glow
+## radius/font sizes elsewhere in this file.
+const TRANSITION_FADE_DURATION: float = 0.6
 
 ## Keyboard-focus target value for a menu item's glow_intensity shader
 ## parameter. Kept in sync with StartButton/GlowHover's
@@ -32,6 +46,13 @@ var _reachable_buttons: Array[Button] = []
 ## -1 means nothing focused yet.
 var _focused_menu_index: int = -1
 
+## True once Start has been pressed and the transition is underway — blocks
+## re-entry (double-click, keyboard confirm spam) from both the mouse path
+## (via _fade_overlay's mouse_filter, set in _begin_transition) and the
+## keyboard path (checked directly in do_action, since the overlay's mouse
+## blocking has no effect on the custom keyboard action-map system).
+var _transitioning: bool = false
+
 
 func _ready() -> void:
 	# NOTE ON on_enter()/on_exit(): Scene (engine/scene.gd) declares these as
@@ -48,10 +69,6 @@ func on_enter() -> void:
 	_apply_logotype_font()
 	_apply_menu_font()
 	_setup_menu_input()
-# Start's actual scene-transition connection (§7's fog-fade transition
-# into Character Creation chunk 1) is the next build step — Start's
-# `pressed` signal already funnels here via _on_start_pressed(), which
-# is currently just a placeholder.
 
 
 ## Applies the display face (IM Fell English, GDD §1.2) to the title text.
@@ -93,6 +110,8 @@ func _apply_menu_font() -> void:
 ## actually gets handled. Mouse click/hover are separate — Buttons handle
 ## click natively, and hover-glow is UiAnimationNode (scene file), not this.
 func do_action(action: GameAction) -> void:
+	if _transitioning:
+		return
 	if not action.is_pressed():
 		return  # react on key-down only; ignore the matching key-up event
 	match action.name:
@@ -175,8 +194,37 @@ func _confirm_menu_focus() -> void:
 
 
 ## Fires on Start being pressed, by mouse OR keyboard confirm (both funnel
-## here — see _setup_menu_input). Actual scene transition (§7's fog-fade
-## into Character Creation chunk 1) is the next build step; this is a
-## placeholder so both input paths already share one hook to fill in.
+## here — see _setup_menu_input). Begins the fade transition (§7).
 func _on_start_pressed() -> void:
-	print("TitleScreen: Start pressed (transition not wired yet — next build step).")
+	if _transitioning:
+		return
+	_transitioning = true
+	_begin_transition()
+
+
+## §7: fade through the scene's own fog color (TRANSITION_FOG_COLOR — see
+## its own doc comment on why this is currently a placeholder, not real
+## fog), not a plain black fade, not a hard cut.
+func _begin_transition() -> void:
+	# Block further mouse input during the transition. Keyboard input is
+	# separately blocked via the _transitioning check in do_action() above —
+	# this overlay's mouse_filter has no effect on that custom system.
+	_fade_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+
+	var tween: Tween = create_tween()
+	tween.tween_property(_fade_overlay, "color", TRANSITION_FOG_COLOR, TRANSITION_FADE_DURATION)
+	tween.tween_callback(_on_transition_covered)
+
+
+## Called once the fade has fully covered the screen. This is where the
+## actual hand-off into Character Creation chunk 1 belongs — but that scene
+## doesn't exist anywhere in the codebase yet (confirmed: scenes/ only has
+## title/ at this point), so there's nothing real to change_scene() to.
+## Left as a clearly-marked stub rather than a change_scene() call that
+## would just fail against a nonexistent path. Whoever builds Character
+## Creation's scene skeleton should replace this print with the real
+## register_scene()/change_scene() call, and give that scene's own on_enter()
+## a matching fade-IN from this same fog color, so the cut reads as
+## continuous rather than as fade-out-then-hard-cut.
+func _on_transition_covered() -> void:
+	print("TitleScreen: transition complete, screen covered by fog-color placeholder. Character Creation hand-off not wired — that scene doesn't exist yet.")

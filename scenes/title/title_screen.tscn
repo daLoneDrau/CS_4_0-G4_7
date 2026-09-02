@@ -152,3 +152,16 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 disabled = true
 text = "Credits"
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer" unique_name_in_owner=true]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.35, 0.32, 0.3, 0)
