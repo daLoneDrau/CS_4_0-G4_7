@@ -8,19 +8,19 @@ extends Scene
 ## menu (§5), glow (§3/§6), input (§6), and transition (§7) are later build
 ## steps — none of that lives here yet.
 
-@onready var _backdrop: ColorRect = %Backdrop
+@onready var _backdrop: TextureRect = %Backdrop
 @onready var _title_label: Label = %TitleLabel
 @onready var _menu_list: VBoxContainer = %MenuList
 @onready var _fade_overlay: ColorRect = %FadeOverlay
 
 ## STAND-IN for the scene's real fog color (§1/§7 — transition fades through
 ## the same fog color used for ambient atmosphere, "one fog definition, not
-## two"). No real fog exists yet — the backdrop is still the flat
-## placeholder ColorRect from the scene-skeleton build step, not an actual
-## rendered fog. This just reuses that placeholder's color so the fade has
-## SOMETHING coherent to go to. MUST be replaced with the real fog color
-## once the render pipeline exists — this is not a settled design choice.
-const TRANSITION_FOG_COLOR: Color = Color(0.35, 0.32, 0.3, 1.0)
+## two"). Matches Environment_backdrop's fog_light_color/background_color in
+## the scene file — both are first-pass placeholder values for "warm muted
+## grey overcast," not colorimetrically locked numbers. If one changes,
+## update the other; ideally these get pulled from one shared source once
+## the render pipeline is less of a moving target.
+const TRANSITION_FOG_COLOR: Color = Color(0.62, 0.6, 0.58, 1.0)
 
 ## Fade duration in seconds. Placeholder-tunable, same caveat as glow
 ## radius/font sizes elsewhere in this file.

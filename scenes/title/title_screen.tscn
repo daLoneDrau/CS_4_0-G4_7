@@ -3,6 +3,19 @@
 [ext_resource type="Script" uid="uid://cxvx8hioofcjq" path="res://scripts/scenes/title/title_screen.gd" id="1_05wk3"]
 [ext_resource type="Shader" uid="uid://c3glr6ki8o2yv" path="res://shaders/text_glow.gdshader" id="2_ynr0n"]
 [ext_resource type="Script" uid="uid://812udxdlvtoj" path="res://daLoneDrau-GDEng-ECS/ui/ui_animation_node.gd" id="3_iowo3"]
+[ext_resource type="PackedScene" uid="uid://dvoxt0hgjh7is" path="res://assets/modeling/earthworks.tscn" id="4_qrms8"]
+
+[sub_resource type="Environment" id="Environment_82y3s"]
+background_mode = 1
+background_color = Color(0.62, 0.6, 0.58, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.58, 0.56, 1)
+fog_enabled = true
+fog_light_color = Color(0.62, 0.6, 0.58, 1)
+fog_density = 0.015
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_wy0tn"]
+viewport_path = NodePath("Viewport3D")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ynr0n"]
 shader = ExtResource("2_ynr0n")
@@ -37,14 +50,40 @@ shader_parameter/glow_intensity = 1.0
 [node name="TitleScreen" type="Node" unique_id=1988397965]
 script = ExtResource("1_05wk3")
 
-[node name="Backdrop" type="ColorRect" parent="." unique_id=490794226]
+[node name="Viewport3D" type="SubViewport" parent="." unique_id=1838818533]
+size = Vector2i(480, 270)
+render_target_update_mode = 4
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Viewport3D" unique_id=261679215]
+environment = SubResource("Environment_82y3s")
+
+[node name="Sun" type="DirectionalLight3D" parent="Viewport3D" unique_id=1058138725]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
+light_color = Color(0.95, 0.93, 0.88, 1)
+light_energy = 0.7
+
+[node name="Camera3D" type="Camera3D" parent="Viewport3D" unique_id=422967529]
+transform = Transform3D(1, 0, 0, 0, 0.99939084, -0.034899496, 0, 0.034899496, 0.99939084, 0, 1.7, 31)
+fov = 50.0
+
+[node name="earthworks" parent="Viewport3D" unique_id=894774289 instance=ExtResource("4_qrms8")]
+
+[node name="earthworks2" parent="Viewport3D" unique_id=1768063925 instance=ExtResource("4_qrms8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.99, 0, 0)
+
+[node name="earthworks3" parent="Viewport3D" unique_id=1269075166 instance=ExtResource("4_qrms8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.99, 0, 0)
+
+[node name="Backdrop" type="TextureRect" parent="." unique_id=1198605626]
 unique_name_in_owner = true
+texture_filter = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.35, 0.32, 0.3, 1)
+mouse_filter = 2
+texture = SubResource("ViewportTexture_wy0tn")
 
 [node name="UI" type="Control" parent="." unique_id=2088486956]
 layout_mode = 3
@@ -153,10 +192,10 @@ theme_override_font_sizes/font_size = 22
 disabled = true
 text = "Credits"
 
-[node name="TransitionLayer" type="CanvasLayer" parent="."]
+[node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=1529984123]
 layer = 10
 
-[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer" unique_name_in_owner=true]
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer" unique_id=1533152527]
 unique_name_in_owner = true
 anchors_preset = 15
 anchor_right = 1.0
