@@ -13,14 +13,10 @@ extends Scene
 @onready var _menu_list: VBoxContainer = %MenuList
 @onready var _fade_overlay: ColorRect = %FadeOverlay
 
-## STAND-IN for the scene's real fog color (§1/§7 — transition fades through
-## the same fog color used for ambient atmosphere, "one fog definition, not
-## two"). Matches Environment_backdrop's fog_light_color/background_color in
-## the scene file — both are first-pass placeholder values for "warm muted
-## grey overcast," not colorimetrically locked numbers. If one changes,
-## update the other; ideally these get pulled from one shared source once
-## the render pipeline is less of a moving target.
-const TRANSITION_FOG_COLOR: Color = Color(0.62, 0.6, 0.58, 1.0)
+## STAND-IN for the scene's real fog color — now centralized on CSGameEngine
+## (CSGameEngine.TRANSITION_FOG_COLOR) since Character Creation's fade-in
+## needs the exact same value; see that constant's doc comment for the full
+## rationale/caveats. Not duplicated here anymore.
 
 ## Fade duration in seconds. Placeholder-tunable, same caveat as glow
 ## radius/font sizes elsewhere in this file.
@@ -212,19 +208,14 @@ func _begin_transition() -> void:
 	_fade_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 
 	var tween: Tween = create_tween()
-	tween.tween_property(_fade_overlay, "color", TRANSITION_FOG_COLOR, TRANSITION_FADE_DURATION)
+	tween.tween_property(_fade_overlay, "color", CSGameEngine.TRANSITION_FOG_COLOR, TRANSITION_FADE_DURATION)
 	tween.tween_callback(_on_transition_covered)
 
 
-## Called once the fade has fully covered the screen. This is where the
-## actual hand-off into Character Creation chunk 1 belongs — but that scene
-## doesn't exist anywhere in the codebase yet (confirmed: scenes/ only has
-## title/ at this point), so there's nothing real to change_scene() to.
-## Left as a clearly-marked stub rather than a change_scene() call that
-## would just fail against a nonexistent path. Whoever builds Character
-## Creation's scene skeleton should replace this print with the real
-## register_scene()/change_scene() call, and give that scene's own on_enter()
-## a matching fade-IN from this same fog color, so the cut reads as
-## continuous rather than as fade-out-then-hard-cut.
+## Called once the fade has fully covered the screen — hands off to
+## Character Creation chunk 1. That scene is a deliberately empty
+## placeholder right now (real chargen build starts next session), but it
+## exists and is registered, so this is a real change_scene() call, not a
+## stub anymore.
 func _on_transition_covered() -> void:
-	print("TitleScreen: transition complete, screen covered by fog-color placeholder. Character Creation hand-off not wired — that scene doesn't exist yet.")
+	CSGameEngine_auto.change_scene("character_creation")

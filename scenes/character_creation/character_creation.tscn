@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://dxeg2qh61kf1g"]
+
+[ext_resource type="Script" uid="uid://crqhcauybqlr5" path="res://scripts/scenes/character_creation/character_creation.gd" id="1_5w2ck"]
+
+[node name="CharacterCreation" type="Node2D" unique_id=977758474]
+script = ExtResource("1_5w2ck")
+
+[node name="Backdrop" type="ColorRect" parent="." unique_id=856313196]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.4, 0.38, 0.35, 1)
+
+[node name="PlaceholderLabel" type="Label" parent="." unique_id=920870106]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Character Creation — placeholder (build starts next session)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=395772763]
+layer = 10
+
+[node name="FadeOverlay" type="ColorRect" parent="TransitionLayer" unique_id=1148748899]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.62, 0.6, 0.58, 1)

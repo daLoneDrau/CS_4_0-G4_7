@@ -5,6 +5,17 @@ extends GameEngine
 ## project.godot's [autoload] section for load order (this must come after
 ## Switchboard_auto and CSEntityManager).
 
+## Shared stand-in for the game's fog color (GDD §1/TITLE_SCREEN_UI_UX.md
+## §7 — scene transitions fade through the same fog color used for each
+## scene's ambient atmosphere, "one fog definition, not two"). No real fog
+## exists yet anywhere in the render pipeline — every scene's actual fog/
+## background is still first-pass placeholder (see e.g. TitleScreen's
+## Environment_backdrop resource). This constant exists so every scene that
+## needs "the fog color" (fade-outs, fade-ins, ambient background) reads
+## from ONE place instead of each duplicating the same magic Color value —
+## update here once real fog is designed, not per-scene.
+const TRANSITION_FOG_COLOR: Color = Color(0.62, 0.6, 0.58, 1.0)
+
 
 func _ready() -> void:
 	super._ready()  # sets process_mode, running = true, caches `window`
@@ -45,6 +56,7 @@ func _start_game() -> void:
 	# to sync GameEngine's primary_scene bookkeeping once Godot's normal
 	# boot sequence actually brings the scene up.
 	register_scene("title_screen", "res://scenes/title/title_screen.tscn")
+	register_scene("character_creation", "res://scenes/character_creation/character_creation.tscn")
 	primary_scene_key = "title_screen"
 	call_deferred("_on_scene_changed", "title_screen")
 
