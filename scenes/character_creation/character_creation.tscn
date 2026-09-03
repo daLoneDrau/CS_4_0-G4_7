@@ -1,27 +1,210 @@
 [gd_scene format=3 uid="uid://dxeg2qh61kf1g"]
 
 [ext_resource type="Script" uid="uid://crqhcauybqlr5" path="res://scripts/scenes/character_creation/character_creation.gd" id="1_5w2ck"]
+[ext_resource type="Shader" uid="uid://cocc6eoy1ufq3" path="res://shaders/ps1_warp.gdshader" id="2_28tfh"]
+[ext_resource type="Texture2D" uid="uid://cwo5l50whmfyn" path="res://assets/materials/ui/frame_stub_atlas.png" id="3_4xea1"]
+
+[sub_resource type="Environment" id="Environment_wy0tn"]
+background_mode = 1
+background_color = Color(0.62, 0.6, 0.58, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.58, 0.56, 1)
+fog_enabled = true
+fog_light_color = Color(0.62, 0.6, 0.58, 1)
+fog_density = 0.015
+
+[sub_resource type="Environment" id="Environment_5w2ck"]
+background_mode = 1
+background_color = Color(0.62, 0.6, 0.58, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.58, 0.56, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5w2ck"]
+size = Vector3(5.6, 0.2, 0.2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5w2ck"]
+render_priority = 0
+shader = ExtResource("2_28tfh")
+shader_parameter/albedo_texture = ExtResource("3_4xea1")
+shader_parameter/vertex_snap_resolution = 320.0
+shader_parameter/vertex_snap_strength = 1.0
+shader_parameter/affine_warp_strength = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_4xea1"]
+size = Vector3(0.2, 4.2, 0.2)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_4xea1"]
+viewport_path = NodePath("EnvironmentViewport")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_mjja7"]
+viewport_path = NodePath("CharacterViewport")
 
 [node name="CharacterCreation" type="Node2D" unique_id=977758474]
 script = ExtResource("1_5w2ck")
 
-[node name="Backdrop" type="ColorRect" parent="." unique_id=856313196]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.4, 0.38, 0.35, 1)
+[node name="EnvironmentViewport" type="SubViewport" parent="." unique_id=1101]
+size = Vector2i(480, 270)
+render_target_update_mode = 4
 
-[node name="PlaceholderLabel" type="Label" parent="." unique_id=920870106]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="EnvironmentViewport" unique_id=1102]
+environment = SubResource("Environment_wy0tn")
+
+[node name="Sun" type="DirectionalLight3D" parent="EnvironmentViewport" unique_id=1103]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 0, 0)
+light_color = Color(0.95, 0.93, 0.88, 1)
+light_energy = 0.7
+
+[node name="Camera3D" type="Camera3D" parent="EnvironmentViewport" unique_id=1104]
+transform = Transform3D(1, 0, 0, 0, 0.99939084, -0.034899496, 0, 0.034899496, 0.99939084, 0, 1.7, 31)
+fov = 50.0
+
+[node name="CharacterViewport" type="SubViewport" parent="." unique_id=1105]
+size = Vector2i(288, 230)
+render_target_update_mode = 4
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="CharacterViewport" unique_id=1106]
+environment = SubResource("Environment_5w2ck")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="CharacterViewport" unique_id=1107]
+transform = Transform3D(0.8660254, 0.38302222, -0.32139382, 0, 0.64278764, 0.76604444, 0.5, -0.66341394, 0.5566704, 0, 2, 5)
+light_color = Color(0.95, 0.93, 0.88, 1)
+light_energy = 0.9
+
+[node name="Camera3D" type="Camera3D" parent="CharacterViewport" unique_id=1108]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+fov = 50.0
+
+[node name="FrameOrnament" type="Node3D" parent="CharacterViewport" unique_id=1109 groups=["decorative_chrome"]]
+
+[node name="TopBar" type="MeshInstance3D" parent="CharacterViewport/FrameOrnament" unique_id=1110]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+mesh = SubResource("BoxMesh_5w2ck")
+surface_material_override/0 = SubResource("ShaderMaterial_5w2ck")
+
+[node name="BottomBar" type="MeshInstance3D" parent="CharacterViewport/FrameOrnament" unique_id=1111]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.1, 0)
+mesh = SubResource("BoxMesh_5w2ck")
+surface_material_override/0 = SubResource("ShaderMaterial_5w2ck")
+
+[node name="LeftBar" type="MeshInstance3D" parent="CharacterViewport/FrameOrnament" unique_id=1112]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7, 0, 0)
+mesh = SubResource("BoxMesh_4xea1")
+surface_material_override/0 = SubResource("ShaderMaterial_5w2ck")
+
+[node name="RightBar" type="MeshInstance3D" parent="CharacterViewport/FrameOrnament" unique_id=1113]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7, 0, 0)
+mesh = SubResource("BoxMesh_4xea1")
+surface_material_override/0 = SubResource("ShaderMaterial_5w2ck")
+
+[node name="EnvironmentBackdrop" type="TextureRect" parent="." unique_id=1114]
+unique_name_in_owner = true
+texture_filter = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "Character Creation — placeholder (build starts next session)"
+mouse_filter = 2
+texture = SubResource("ViewportTexture_4xea1")
+
+[node name="UI" type="Control" parent="." unique_id=1115]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="ColorRect" parent="UI" unique_id=1116]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.4
+anchor_bottom = 0.85
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.11, 0.1, 0.65)
+
+[node name="ChunkContainer" type="Control" parent="UI/Panel" unique_id=1117]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CharacterWindow" type="TextureRect" parent="UI" unique_id=1118]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.4
+anchor_right = 1.0
+anchor_bottom = 0.85
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("ViewportTexture_mjja7")
+
+[node name="BottomStrip" type="ColorRect" parent="UI" unique_id=1119]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.11, 0.1, 0.85)
+
+[node name="ProgressLabel" type="Label" parent="UI/BottomStrip" unique_id=1120]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.87, 0.83, 0.76, 1)
+text = "Step 1 of 7"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BackButton" type="Button" parent="UI/BottomStrip" unique_id=1121]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 24.0
+offset_top = -18.0
+offset_right = 124.0
+offset_bottom = 18.0
+grow_vertical = 2
+text = "Back"
+
+[node name="NextButton" type="Button" parent="UI/BottomStrip" unique_id=1122]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -124.0
+offset_top = -18.0
+offset_right = -24.0
+offset_bottom = 18.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "Next"
 
 [node name="TransitionLayer" type="CanvasLayer" parent="." unique_id=395772763]
 layer = 10
