@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://de0ufkepspe4k" path="res://scripts/scenes/character_creation/chunks/chunk_1_identity_method.gd" id="1_1nioh"]
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_wy0tn"]
+
 [node name="Chunk1IdentityMethodStub" type="Control" unique_id=1969074735]
 layout_mode = 3
 anchors_preset = 15
@@ -25,8 +27,50 @@ theme_override_constants/separation = 16
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.87, 0.83, 0.76, 1)
-text = "Chunk 1 — Identity & Method (stub)"
+theme_override_font_sizes/font_size = 20
+text = "Chunk 1 — Identity & Method"
 autowrap_mode = 2
+
+[node name="RaceLabel" type="Label" parent="Layout" unique_id=2001]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.68, 0.6, 1)
+text = "Race"
+
+[node name="RaceDropdown" type="OptionButton" parent="Layout" unique_id=2002]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="GenderLabel" type="Label" parent="Layout" unique_id=2003]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.68, 0.6, 1)
+text = "Gender"
+
+[node name="GenderCards" type="HBoxContainer" parent="Layout" unique_id=2004]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="MaleCard" type="Button" parent="Layout/GenderCards" unique_id=2006]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 96)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_wy0tn")
+text = "♂ 
+Male"
+
+[node name="FemaleCard" type="Button" parent="Layout/GenderCards" unique_id=2007]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 96)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_wy0tn")
+text = "♀
+Female"
 
 [node name="MethodToggle" type="CheckButton" parent="Layout" unique_id=864563173]
 unique_name_in_owner = true

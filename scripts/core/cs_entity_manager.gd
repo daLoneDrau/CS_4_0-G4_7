@@ -34,6 +34,15 @@ func create_draft_character() -> Entity:
 	draft.id = uuidv4()
 	draft.tags.add(PlayerTags.Tag.PC)
 
+	# Attached via Entity.set_component() directly, not
+	# EntityManager.add_component() — that helper is documented for
+	# existing entities only, and add_entity_immediately() below already
+	# fires on_added() (via _notify_components_added()) for whatever's
+	# attached at that point. Race/gender are chunk 1's, per
+	# CHARACTER_CREATION_UI_UX.md §4.
+	draft.set_component(CSRaceComponent.new())
+	draft.set_component(DescriptionComponent.new())
+
 	add_entity(draft)
 	add_entity_immediately(draft.id)
 
