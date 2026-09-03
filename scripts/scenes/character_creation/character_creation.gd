@@ -1,26 +1,33 @@
 class_name CharacterCreation
 extends Scene
 
-## Character Creation — chunk 1 entry point. DELIBERATELY EMPTY at this
-## build step: this exists only so TitleScreen's Start button has a real
-## destination to transition into. Full behavior spec lives in
-## CHARACTER_CREATION_UI_UX.md and STEPS_IN_CHARACTER_CREATION.md — none of
-## that is implemented here yet. That's the next build session's work.
+## Character Creation — owns the standard-chunk chrome (CHARACTER_CREATION_UI_UX.md
+## §2) for the whole 7-chunk session: creates the draft Entity, owns the
+## Stepper that mounts/unmounts chunk content, and holds the fade-in half of
+## the Title-Screen-to-here transition (§7 — see TitleScreen._begin_transition()
+## for the fade-OUT half).
 ##
-## What DOES work here: the fade-IN half of the fog-color transition (§7),
-## so arriving from Title Screen reads as one continuous cut rather than
-## fading to fog and then hard-cutting into whatever this scene's default
-## state is. See TitleScreen._begin_transition() for the fade-OUT half.
+## STILL NOT REAL as of this build step: the 7 chunk scene files themselves
+## (build step #7, next), and the downstream-dependency/reset system +
+## confirmation dialog (steps #8/#9). The chrome, draft-entity creation, and
+## Next/Back/mount-unmount plumbing are real as of this step; nothing in
+## those later steps is implemented yet.
 
 const FADE_IN_DURATION: float = 0.6
 
 @onready var _fade_overlay: ColorRect = %FadeOverlay
+@onready var _stepper: ChargenStepper = %Stepper
+@onready var _chunk_container: Control = %ChunkContainer
+@onready var _back_button: Button = %BackButton
+@onready var _next_button: Button = %NextButton
+@onready var _progress_label: Label = %ProgressLabel
 
 ## The in-progress character. Per CHARACTER_CREATION_ENGINEERING_NOTES.md §2:
 ## a real Entity (not a plain draft object), created the moment chargen
-## starts and tagged PC immediately — not promoted to PC later. The stepper
-## controller (build step #6, not yet implemented) will read this and hand
-## it to each ChargenChunk's mount(entity) on Next/Back.
+## starts and tagged PC immediately — not promoted to PC later. Handed to
+## _stepper.initialize(), which passes it to each ChargenChunk's mount()
+## on every mount (chunks re-read it fresh every time — see ChargenStepper's
+## class doc comment).
 var draft_character: Entity
 
 
@@ -47,6 +54,14 @@ func on_enter() -> void:
 	# against that, matching this file's/TitleScreen's existing on_enter()
 	# pattern, which doesn't guard against re-entry either.
 	draft_character = CSEntityManager_auto.create_draft_character()
+
+	# Stepper mounts chunk 1 immediately as part of initialize() — see
+	# ChargenStepper.initialize(). Chunk scene files don't exist until build
+	# step #7; this call is correct code today, just not runnable
+	# end-to-end until those files land (ChargenStepper._mount_chunk() uses
+	# load(), not preload(), specifically so this doesn't break parsing in
+	# the meantime).
+	_stepper.initialize(_chunk_container, _back_button, _next_button, _progress_label, draft_character)
 
 
 ## Required override — Scene.do_action() is abstract. No input handling

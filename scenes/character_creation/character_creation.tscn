@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://crqhcauybqlr5" path="res://scripts/scenes/character_creation/character_creation.gd" id="1_5w2ck"]
 [ext_resource type="Shader" uid="uid://cocc6eoy1ufq3" path="res://shaders/ps1_warp.gdshader" id="2_28tfh"]
+[ext_resource type="Script" uid="uid://0kndkm4jdeqx" path="res://scripts/scenes/character_creation/chargen_stepper.gd" id="2_mjja7"]
 [ext_resource type="Texture2D" uid="uid://cwo5l50whmfyn" path="res://assets/materials/ui/frame_stub_atlas.png" id="3_4xea1"]
 
 [sub_resource type="Environment" id="Environment_wy0tn"]
@@ -41,6 +42,10 @@ viewport_path = NodePath("CharacterViewport")
 
 [node name="CharacterCreation" type="Node" unique_id=977758474]
 script = ExtResource("1_5w2ck")
+
+[node name="Stepper" type="Node" parent="." unique_id=1100]
+unique_name_in_owner = true
+script = ExtResource("2_mjja7")
 
 [node name="EnvironmentViewport" type="SubViewport" parent="." unique_id=1101]
 size = Vector2i(480, 270)

@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://ctqk5dr3ueuu2"]
+
+[ext_resource type="Script" uid="uid://kwutwb6we268" path="res://scripts/scenes/character_creation/chunks/chunk_6_physicality.gd" id="1_genw6"]
+
+[node name="Chunk6Physicality" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_genw6")
+chunk_label_text = "Chunk 6 — Physicality (stub)"
+
+[node name="ChunkLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.87, 0.83, 0.76, 1)
+text = "Chunk 6 — Physicality (stub)"
+autowrap_mode = 2
