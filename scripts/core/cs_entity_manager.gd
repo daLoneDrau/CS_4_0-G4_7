@@ -17,6 +17,29 @@ func is_pc(e: Entity) -> bool:
 	return e != null and e.tags.has(PlayerTags.Tag.PC)
 
 
+## Creates the in-progress character for Character Creation: a real Entity
+## (not a plain draft object), tagged PC immediately at creation — not
+## promoted to PC later. Decision + full reasoning:
+## CHARACTER_CREATION_ENGINEERING_NOTES.md §2. Known accepted risk from that
+## same section: for the duration of chargen, this half-built character (no
+## attributes, no background, etc. yet) satisfies is_pc()/Scene.get_player()
+## like any complete character would.
+##
+## Added immediately (add_entity() + add_entity_immediately()), not just
+## queued via add_entity() alone — the caller (character_creation.gd) needs
+## a valid, queryable Entity in the same frame chargen starts, not one frame
+## later once EntityManager.update() next runs.
+func create_draft_character() -> Entity:
+	var draft: Entity = Entity.new()
+	draft.id = uuidv4()
+	draft.tags.add(PlayerTags.Tag.PC)
+
+	add_entity(draft)
+	add_entity_immediately(draft.id)
+
+	return draft
+
+
 ## NOTE: item_component.gd's ItemComponent is itself @abstract — no concrete
 ## item component subclass exists in the repo yet, so there's currently no
 ## real component name to check for. Returns false until a concrete item

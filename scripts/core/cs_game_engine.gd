@@ -22,9 +22,16 @@ func _ready() -> void:
 	run()  # GameEngine.run(): _initialize_systems() -> load_resources() -> _setup_window() -> _start_game()
 
 
-## No GameSystems are needed yet for Title Screen scene/UI construction —
-## this hook is for later build steps (combat, inventory, etc.) that need
-## systems registered globally rather than per-scene.
+## No GameSystems are needed yet for combat/inventory/etc. — this hook is
+## for those later build steps. entity_manager IS wired here though: it's
+## not a GameSystem, but this is the established hook for "global engine
+## state that isn't scene-local," and Scene.get_player()/get_scene_entities()
+## (ECS base class) read GameEngine.entity_manager directly — those were
+## previously silently null (tolerated by GameEngine._process()'s
+## `if entity_manager and ...` guard, so nothing crashed, it just did
+## nothing). Character Creation's draft-Entity/PC-tagging design
+## (CHARACTER_CREATION_ENGINEERING_NOTES.md §2) depends on get_player()
+## actually resolving, so this is a required fix, not new scope.
 func _initialize_systems() -> void:
 	pass
 
