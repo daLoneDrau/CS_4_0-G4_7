@@ -10,10 +10,10 @@ extends Scene
 ## TitleScreen._begin_transition() for the fade-OUT half).
 ##
 ## STILL NOT REAL as of this build step: chunks 2-7 having any actual
-## fields/data (they're stubs — see chunks/chargen_chunk_stub.gd and
-## friends), and therefore the downstream-reset system only has one real
-## case to exercise (chunk 1's method toggle) rather than the general rule
-## CHARACTER_CREATION_UI_UX.md §1 describes.
+## fields/data (they're stubs — one per chunk, e.g.
+## chunks/chunk_2_attributes.gd), and therefore the downstream-reset system
+## only has one real case to exercise (chunk 1's method toggle) rather than
+## the general rule CHARACTER_CREATION_UI_UX.md §1 describes.
 
 const FADE_IN_DURATION: float = 0.6
 

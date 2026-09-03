@@ -37,7 +37,13 @@ func mount(character: Entity) -> void:
 	# yet for creation method — BackgroundComponent, GDD §3.3, doesn't cover
 	# this). Deliberately provisional; replace once a real component exists.
 	var current_method: String = character.get_meta(META_KEY, METHOD_RANDOM) as String
-	_method_toggle.button_pressed = (current_method == METHOD_POINT_BASED)
+	# set_pressed_no_signal(), not .button_pressed = ..., even though the
+	# toggled connection below doesn't exist yet at this point in mount()
+	# (so it happens to be safe either way today). Using the _no_signal
+	# setter here removes the implicit "this only works because connect()
+	# comes after" ordering dependency — safe by construction, not by
+	# accident, if this code is ever reordered.
+	_method_toggle.set_pressed_no_signal(current_method == METHOD_POINT_BASED)
 	_update_toggle_text()
 
 	if not _method_toggle.toggled.is_connected(_on_method_toggled):

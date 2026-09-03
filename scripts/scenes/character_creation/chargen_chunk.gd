@@ -5,11 +5,10 @@ extends Control
 ## Decision + full reasoning: CHARACTER_CREATION_ENGINEERING_NOTES.md §3.
 ##
 ## Lifecycle model (per that decision, confirmed explicitly — not the only
-## option considered): the stepper controller (build step #6, not yet
-## implemented) instantiates a chunk's .tscn FRESH on every mount and frees
-## it on unmount. Chunks are stateless views over the draft Entity — the
-## Entity is the single persistent source of truth (see engineering notes
-## §2), not this node. That means:
+## option considered): ChargenStepper instantiates a chunk's .tscn FRESH on
+## every mount and frees it on unmount. Chunks are stateless views over the
+## draft Entity — the Entity is the single persistent source of truth (see
+## engineering notes §2), not this node. That means:
 ##   - mount() must fully repopulate this chunk's controls from the current
 ##     state of `entity` every time it's called, since the same chunk
 ##     instance is never reused across visits.

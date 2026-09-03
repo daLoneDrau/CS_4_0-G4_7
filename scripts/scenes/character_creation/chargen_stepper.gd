@@ -15,21 +15,20 @@ extends Node
 ## "data persistence on Back" (CHARACTER_CREATION_UI_UX.md §1) work here
 ## without this class needing to cache anything itself.
 ##
-## SCOPE NOTE: mount/unmount/Next/Back/progress, plus build step #8's one
-## specified downstream-dependency case (chunk 1's method toggle → flag
-## chunks 2-7 for reset). The confirmation dialog that must gate that reset
+## SCOPE NOTE: mount/unmount/Next/Back/progress, plus the one specified
+## downstream-dependency case (chunk 1's method toggle → flag chunks 2-7
+## for reset). The confirmation dialog that gates that reset
 ## (CHARACTER_CREATION_UI_UX.md §1: "any destructive reset/flag action
-## requires a confirmation dialog before executing") is build step #9, not
-## yet implemented — see flag_downstream_and_confirm()'s doc comment for
-## how this class stays correct in the meantime. "Finish chargen" behavior
-## at chunk 7 isn't designed yet and isn't invented here.
+## requires a confirmation dialog before executing") is character_creation.gd's
+## local modal, which listens for downstream_reset_requested below and
+## calls back into reset_chunks()/revert_pending_method_change(). "Finish
+## chargen" behavior at chunk 7 isn't designed yet and isn't invented here.
 
 ## Emitted when a destructive downstream reset is needed. This class does
 ## NOT execute the reset itself when this fires — see
-## flag_downstream_and_confirm(). Build step #9's confirmation modal is the
-## intended listener; until it exists, nothing is connected to this signal,
-## so flagging is real but currently has no observable effect. That's
-## deliberate, not a gap to silently patch over — see the method below.
+## flag_downstream_and_confirm(). character_creation.gd's local
+## confirmation modal is the listener: it shows the modal, then calls
+## reset_chunks() on Confirm or revert_pending_method_change() on Cancel.
 signal downstream_reset_requested(from_index: int, through_index: int)
 
 ## Ordered chunk scene paths, per GDD §3.2's chunk grouping. Naming
@@ -47,7 +46,7 @@ const CHUNK_SCENE_PATHS: Array[String] = [
 	"res://scenes/character_creation/chunks/chunk_5_character_traits.tscn",
 	"res://scenes/character_creation/chunks/chunk_6_physicality.tscn",
 	"res://scenes/character_creation/chunks/chunk_7_optional_flourishes.tscn",
-]
+	]
 
 var _container: Control
 var _back_button: Button
@@ -156,30 +155,30 @@ func _on_creation_method_changed(old_method: String, new_method: String) -> void
 ## Deliberately does NOT perform the reset itself — only emits
 ## downstream_reset_requested. Per CHARACTER_CREATION_UI_UX.md §1, any
 ## destructive reset requires a confirmation dialog BEFORE executing; that
-## dialog is build step #9, not yet implemented. Auto-executing here would
-## violate that rule even temporarily, so this stops at "flagged," and
-## reset_chunks() below — the actual execution — isn't called from
-## anywhere in this build step.
+## dialog is character_creation.gd's local modal (build step #9). Auto-
+## executing here would violate that rule even temporarily, so this stops
+## at "flagged" — reset_chunks() below is the actual execution, and is only
+## ever called from character_creation.gd's _on_confirm_pressed().
 func flag_downstream_and_confirm(from_index: int, through_index: int) -> void:
 	downstream_reset_requested.emit(from_index, through_index)
 
 
-## Performs the actual reset. Intended caller: build step #9's confirmation
-## modal, on Confirm — not called anywhere yet. At the current stub level,
-## chunks 2-7 persist nothing to the Entity, so there's no real per-chunk
-## data this can clear; the one honest thing it can do today is drop the
-## high-water mark, so _furthest_index_reached > 0 correctly reads false
-## again until the player re-progresses past chunk 1. Revisit once chunks
-## 2-7 have real fields/components to actually clear.
+## Performs the actual reset. Called by character_creation.gd's
+## _on_confirm_pressed(). At the current stub level, chunks 2-7 persist
+## nothing to the Entity, so there's no real per-chunk data this can clear;
+## the one honest thing it can do today is drop the high-water mark, so
+## _furthest_index_reached > 0 correctly reads false again until the player
+## re-progresses past chunk 1. Revisit once chunks 2-7 have real fields/
+## components to actually clear.
 func reset_chunks(_from_index: int, _through_index: int) -> void:
 	_furthest_index_reached = 0
 
 
-## Cancel-path counterpart to reset_chunks() — called by build step #9's
-## modal instead of reset_chunks() when the player cancels. Reverts chunk
-## 1's toggle (both its own displayed state and the Entity meta value) back
-## to what it was before the change that triggered this whole flow, so
-## canceling truly changes nothing.
+## Cancel-path counterpart to reset_chunks() — called by character_creation.gd's
+## _on_cancel_pressed() instead of reset_chunks() when the player cancels.
+## Reverts chunk 1's toggle (both its own displayed state and the Entity
+## meta value) back to what it was before the change that triggered this
+## whole flow, so canceling truly changes nothing.
 ##
 ## Checked via has_method() rather than a static Chunk1IdentityMethodStub
 ## type check, matching the has_signal() check in _mount_chunk() — this
