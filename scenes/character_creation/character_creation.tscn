@@ -39,7 +39,7 @@ viewport_path = NodePath("EnvironmentViewport")
 [sub_resource type="ViewportTexture" id="ViewportTexture_mjja7"]
 viewport_path = NodePath("CharacterViewport")
 
-[node name="CharacterCreation" type="Node2D" unique_id=977758474]
+[node name="CharacterCreation" type="Node" unique_id=977758474]
 script = ExtResource("1_5w2ck")
 
 [node name="EnvironmentViewport" type="SubViewport" parent="." unique_id=1101]
