@@ -15,11 +15,22 @@ extends Node
 ## "data persistence on Back" (CHARACTER_CREATION_UI_UX.md §1) work here
 ## without this class needing to cache anything itself.
 ##
-## SCOPE NOTE: this build step is only mount/unmount/Next/Back/progress. The
-## downstream-dependency/reset system (engineering notes §4) and its
-## confirmation dialog are separate, later build steps (#8/#9) — nothing
-## here calls into either yet. Next is simply disabled at the last chunk;
-## "finish chargen" behavior isn't designed yet and isn't invented here.
+## SCOPE NOTE: mount/unmount/Next/Back/progress, plus build step #8's one
+## specified downstream-dependency case (chunk 1's method toggle → flag
+## chunks 2-7 for reset). The confirmation dialog that must gate that reset
+## (CHARACTER_CREATION_UI_UX.md §1: "any destructive reset/flag action
+## requires a confirmation dialog before executing") is build step #9, not
+## yet implemented — see flag_downstream_and_confirm()'s doc comment for
+## how this class stays correct in the meantime. "Finish chargen" behavior
+## at chunk 7 isn't designed yet and isn't invented here.
+
+## Emitted when a destructive downstream reset is needed. This class does
+## NOT execute the reset itself when this fires — see
+## flag_downstream_and_confirm(). Build step #9's confirmation modal is the
+## intended listener; until it exists, nothing is connected to this signal,
+## so flagging is real but currently has no observable effect. That's
+## deliberate, not a gap to silently patch over — see the method below.
+signal downstream_reset_requested(from_index: int, through_index: int)
 
 ## Ordered chunk scene paths, per GDD §3.2's chunk grouping. Naming
 ## convention confirmed this session: chunk_<n>_<gdd-name>.tscn. These files
@@ -46,6 +57,14 @@ var _character: Entity
 
 var _current_index: int = -1
 var _current_chunk: ChargenChunk
+
+## Furthest chunk index reached this session (0-based). Proxy for "chunks
+## 2-7 have data" per this session's explicit call: chunks 2-7 currently
+## write nothing to the Entity (pure stub labels), so there's no real
+## per-chunk data to check yet. This tracks "has the player navigated past
+## chunk 1 at least once" as the stand-in condition instead. Reset back to
+## 0 by reset_chunks() once that's actually invoked (by #9, on confirm).
+var _furthest_index_reached: int = 0
 
 
 ## Wires the stepper up to the chrome character_creation.gd owns, and mounts
@@ -95,9 +114,56 @@ func _mount_chunk(index: int) -> void:
 
 	_current_chunk = chunk
 	_current_index = index
+	if index > _furthest_index_reached:
+		_furthest_index_reached = index
+
+	# Chunk 1's method-toggle signal is specific to its own script
+	# (chunk_1_identity_method.gd), not part of the generic ChargenChunk
+	# contract — checked via has_signal() rather than a static type check,
+	# so this doesn't need to import that concrete script just to wire one
+	# signal. Reconnected fresh every mount since chunk instances are never
+	# reused (see class doc comment).
+	if chunk.has_signal("creation_method_changed"):
+		chunk.connect("creation_method_changed", _on_creation_method_changed)
 
 	_update_progress_label()
 	_update_button_states()
+
+
+## Handles the one specified downstream-dependency case (engineering notes
+## §4): if the method changes after the player has ever progressed past
+## chunk 1 this session, chunks 2-7 need flagging for reset.
+func _on_creation_method_changed(_new_method: String) -> void:
+	if _furthest_index_reached > 0:
+		flag_downstream_and_confirm(1, CHUNK_SCENE_PATHS.size() - 1)
+
+
+## Requests a destructive downstream reset covering chunk indices
+## [from_index, through_index] inclusive (0-based). Named to match
+## engineering notes §4's "something like flag_downstream_and_confirm(...)"
+## — built as a small reusable utility, not hardcoded to only the chunk-1
+## case, even though that's the only caller right now.
+##
+## Deliberately does NOT perform the reset itself — only emits
+## downstream_reset_requested. Per CHARACTER_CREATION_UI_UX.md §1, any
+## destructive reset requires a confirmation dialog BEFORE executing; that
+## dialog is build step #9, not yet implemented. Auto-executing here would
+## violate that rule even temporarily, so this stops at "flagged," and
+## reset_chunks() below — the actual execution — isn't called from
+## anywhere in this build step.
+func flag_downstream_and_confirm(from_index: int, through_index: int) -> void:
+	downstream_reset_requested.emit(from_index, through_index)
+
+
+## Performs the actual reset. Intended caller: build step #9's confirmation
+## modal, on Confirm — not called anywhere yet. At the current stub level,
+## chunks 2-7 persist nothing to the Entity, so there's no real per-chunk
+## data this can clear; the one honest thing it can do today is drop the
+## high-water mark, so _furthest_index_reached > 0 correctly reads false
+## again until the player re-progresses past chunk 1. Revisit once chunks
+## 2-7 have real fields/components to actually clear.
+func reset_chunks(_from_index: int, _through_index: int) -> void:
+	_furthest_index_reached = 0
 
 
 func _update_progress_label() -> void:
