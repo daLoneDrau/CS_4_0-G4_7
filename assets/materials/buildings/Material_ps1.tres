@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://6g4dsjj42jpr"]
+
+[ext_resource type="Shader" uid="uid://cocc6eoy1ufq3" path="res://shaders/ps1_warp.gdshader" id="1_tuxqr"]
+[ext_resource type="Texture2D" uid="uid://bcicvk33aw4df" path="res://assets/modeling/earthworks_atlas.png" id="2_2n5a4"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_tuxqr")
+shader_parameter/albedo_texture = ExtResource("2_2n5a4")
+shader_parameter/vertex_snap_resolution = 320.0
+shader_parameter/vertex_snap_strength = 1.0
+shader_parameter/affine_warp_strength = 1.0
