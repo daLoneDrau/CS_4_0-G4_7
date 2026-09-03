@@ -66,6 +66,12 @@ var _current_chunk: ChargenChunk
 ## 0 by reset_chunks() once that's actually invoked (by #9, on confirm).
 var _furthest_index_reached: int = 0
 
+## Chunk 1's method value before the change that triggered the currently-
+## pending reset request, if any. Needed for revert_pending_method_change()
+## (Cancel path) — captured here rather than re-derived, since by the time
+## Cancel is pressed the Entity meta already holds the NEW value.
+var _pending_revert_old_method: String = ""
+
 
 ## Wires the stepper up to the chrome character_creation.gd owns, and mounts
 ## chunk 1. Call exactly once, after the draft Entity exists.
@@ -132,9 +138,12 @@ func _mount_chunk(index: int) -> void:
 
 ## Handles the one specified downstream-dependency case (engineering notes
 ## §4): if the method changes after the player has ever progressed past
-## chunk 1 this session, chunks 2-7 need flagging for reset.
-func _on_creation_method_changed(_new_method: String) -> void:
+## chunk 1 this session, chunks 2-7 need flagging for reset. Stores
+## old_method for a possible later revert_pending_method_change() call —
+## see that method and chunk_1_identity_method.gd's revert_to().
+func _on_creation_method_changed(old_method: String, new_method: String) -> void:
 	if _furthest_index_reached > 0:
+		_pending_revert_old_method = old_method
 		flag_downstream_and_confirm(1, CHUNK_SCENE_PATHS.size() - 1)
 
 
@@ -164,6 +173,22 @@ func flag_downstream_and_confirm(from_index: int, through_index: int) -> void:
 ## 2-7 have real fields/components to actually clear.
 func reset_chunks(_from_index: int, _through_index: int) -> void:
 	_furthest_index_reached = 0
+
+
+## Cancel-path counterpart to reset_chunks() — called by build step #9's
+## modal instead of reset_chunks() when the player cancels. Reverts chunk
+## 1's toggle (both its own displayed state and the Entity meta value) back
+## to what it was before the change that triggered this whole flow, so
+## canceling truly changes nothing.
+##
+## Checked via has_method() rather than a static Chunk1IdentityMethodStub
+## type check, matching the has_signal() check in _mount_chunk() — this
+## stays correct even if chunk 1 isn't the currently-mounted chunk for some
+## future reason (no-ops safely instead of erroring).
+func revert_pending_method_change() -> void:
+	if _current_chunk and _current_chunk.has_method("revert_to"):
+		_current_chunk.call("revert_to", _pending_revert_old_method)
+	_pending_revert_old_method = ""
 
 
 func _update_progress_label() -> void:

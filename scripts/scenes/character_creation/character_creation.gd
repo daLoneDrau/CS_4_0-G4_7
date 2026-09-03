@@ -3,15 +3,17 @@ extends Scene
 
 ## Character Creation — owns the standard-chunk chrome (CHARACTER_CREATION_UI_UX.md
 ## §2) for the whole 7-chunk session: creates the draft Entity, owns the
-## Stepper that mounts/unmounts chunk content, and holds the fade-in half of
-## the Title-Screen-to-here transition (§7 — see TitleScreen._begin_transition()
-## for the fade-OUT half).
+## Stepper that mounts/unmounts chunk content, owns the local reset-
+## confirmation modal (engineering notes §5 — scene-local UI state, not
+## GameEngine.push_modal_scene(), which pauses the whole tree), and holds
+## the fade-in half of the Title-Screen-to-here transition (§7 — see
+## TitleScreen._begin_transition() for the fade-OUT half).
 ##
-## STILL NOT REAL as of this build step: the 7 chunk scene files themselves
-## (build step #7, next), and the downstream-dependency/reset system +
-## confirmation dialog (steps #8/#9). The chrome, draft-entity creation, and
-## Next/Back/mount-unmount plumbing are real as of this step; nothing in
-## those later steps is implemented yet.
+## STILL NOT REAL as of this build step: chunks 2-7 having any actual
+## fields/data (they're stubs — see chunks/chargen_chunk_stub.gd and
+## friends), and therefore the downstream-reset system only has one real
+## case to exercise (chunk 1's method toggle) rather than the general rule
+## CHARACTER_CREATION_UI_UX.md §1 describes.
 
 const FADE_IN_DURATION: float = 0.6
 
@@ -21,6 +23,9 @@ const FADE_IN_DURATION: float = 0.6
 @onready var _back_button: Button = %BackButton
 @onready var _next_button: Button = %NextButton
 @onready var _progress_label: Label = %ProgressLabel
+@onready var _confirm_modal: Control = %ConfirmModal
+@onready var _confirm_button: Button = %ConfirmButton
+@onready var _cancel_button: Button = %CancelButton
 
 ## The in-progress character. Per CHARACTER_CREATION_ENGINEERING_NOTES.md §2:
 ## a real Entity (not a plain draft object), created the moment chargen
@@ -29,6 +34,12 @@ const FADE_IN_DURATION: float = 0.6
 ## on every mount (chunks re-read it fresh every time — see ChargenStepper's
 ## class doc comment).
 var draft_character: Entity
+
+## Set by _on_downstream_reset_requested(), consumed by _on_confirm_pressed().
+## Not needed by _on_cancel_pressed() — ChargenStepper tracks what it needs
+## to revert internally (_pending_revert_old_method).
+var _pending_reset_from_index: int = -1
+var _pending_reset_through_index: int = -1
 
 
 func _ready() -> void:
@@ -62,6 +73,38 @@ func on_enter() -> void:
 	# load(), not preload(), specifically so this doesn't break parsing in
 	# the meantime).
 	_stepper.initialize(_chunk_container, _back_button, _next_button, _progress_label, draft_character)
+
+	if not _stepper.downstream_reset_requested.is_connected(_on_downstream_reset_requested):
+		_stepper.downstream_reset_requested.connect(_on_downstream_reset_requested)
+	if not _confirm_button.pressed.is_connected(_on_confirm_pressed):
+		_confirm_button.pressed.connect(_on_confirm_pressed)
+	if not _cancel_button.pressed.is_connected(_on_cancel_pressed):
+		_cancel_button.pressed.connect(_on_cancel_pressed)
+
+
+## Shows the confirmation modal — ordinary scene-local visibility toggle,
+## per engineering notes §5. Stores which chunk range is pending so
+## _on_confirm_pressed() can pass it through to ChargenStepper.reset_chunks().
+func _on_downstream_reset_requested(from_index: int, through_index: int) -> void:
+	_pending_reset_from_index = from_index
+	_pending_reset_through_index = through_index
+	_confirm_modal.visible = true
+
+
+func _on_confirm_pressed() -> void:
+	_stepper.reset_chunks(_pending_reset_from_index, _pending_reset_through_index)
+	_hide_confirm_modal()
+
+
+func _on_cancel_pressed() -> void:
+	_stepper.revert_pending_method_change()
+	_hide_confirm_modal()
+
+
+func _hide_confirm_modal() -> void:
+	_confirm_modal.visible = false
+	_pending_reset_from_index = -1
+	_pending_reset_through_index = -1
 
 
 ## Required override — Scene.do_action() is abstract. No input handling

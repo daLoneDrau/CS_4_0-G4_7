@@ -16,7 +16,7 @@ extends ChargenChunk
 ## a full reset of chunks 2-7"). This is a functional-text control widget
 ## per the decorative-vs-functional heuristic (§3) — never warp-eligible.
 
-signal creation_method_changed(new_method: String)
+signal creation_method_changed(old_method: String, new_method: String)
 
 const META_KEY: StringName = &"chargen_stub_creation_method"
 const METHOD_RANDOM: String = "random"
@@ -44,14 +44,33 @@ func mount(character: Entity) -> void:
 		_method_toggle.toggled.connect(_on_method_toggled)
 
 
-## Emits creation_method_changed but connects to nothing yet — build step
-## #8 is what wires this to the actual downstream-reset rule. Deliberately
-## not done here, per the roadmap's dependency order.
+## Emits creation_method_changed with BOTH old and new values — build step
+## #9's confirmation modal needs the old value to revert on Cancel, and by
+## the time this fires the Entity meta has already been overwritten, so the
+## old value has to be captured and passed here or it's gone. Connects to
+## ChargenStepper._on_creation_method_changed(), wired in build step #8.
 func _on_method_toggled(pressed: bool) -> void:
+	var old_method: String = entity.get_meta(META_KEY, METHOD_RANDOM) as String
 	var new_method: String = METHOD_POINT_BASED if pressed else METHOD_RANDOM
 	entity.set_meta(META_KEY, new_method)
 	_update_toggle_text()
-	creation_method_changed.emit(new_method)
+	creation_method_changed.emit(old_method, new_method)
+
+
+## Reverts both the Entity meta value and the toggle's own displayed state
+## back to `method`, WITHOUT re-emitting creation_method_changed — that
+## would loop straight back into the stepper's reset-confirmation flow that
+## called this in the first place. Called by
+## ChargenStepper.revert_pending_method_change() (build step #9), itself
+## called by character_creation.gd's modal on Cancel.
+##
+## Uses set_pressed_no_signal() specifically — assigning .button_pressed
+## directly would fire `toggled` and re-trigger _on_method_toggled(),
+## causing exactly the loop this method exists to avoid.
+func revert_to(method: String) -> void:
+	entity.set_meta(META_KEY, method)
+	_method_toggle.set_pressed_no_signal(method == METHOD_POINT_BASED)
+	_update_toggle_text()
 
 
 func _update_toggle_text() -> void:
