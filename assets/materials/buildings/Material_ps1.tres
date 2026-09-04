@@ -9,4 +9,4 @@ shader = ExtResource("1_tuxqr")
 shader_parameter/albedo_texture = ExtResource("2_2n5a4")
 shader_parameter/vertex_snap_resolution = 320.0
 shader_parameter/vertex_snap_strength = 1.0
-shader_parameter/affine_warp_strength = 1.0
+shader_parameter/affine_warp_strength = 0.0

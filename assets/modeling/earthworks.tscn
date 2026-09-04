@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dvoxt0hgjh7is"]
 
 [ext_resource type="PackedScene" uid="uid://b5wl3d8ofhtjp" path="res://assets/modeling/earthworks.glb" id="1_o2qp2"]
-[ext_resource type="Material" uid="uid://6g4dsjj42jpr" path="res://assets/materials/buildings/Material_ps1.tres" id="2_o2qp2"]
+[ext_resource type="Material" uid="uid://bkmt215jb4kfs" path="res://assets/materials/buildings/Material.tres" id="2_o2qp2"]
 
 [node name="earthworks" unique_id=894774289 instance=ExtResource("1_o2qp2")]
 

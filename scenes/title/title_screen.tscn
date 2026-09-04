@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cxvx8hioofcjq" path="res://scripts/scenes/title/title_screen.gd" id="1_05wk3"]
 [ext_resource type="Shader" uid="uid://c3glr6ki8o2yv" path="res://shaders/text_glow.gdshader" id="2_ynr0n"]
+[ext_resource type="Shader" uid="uid://6plwqo8bfd7m" path="res://shaders/dither.gdshader" id="3_8xedo"]
 [ext_resource type="Script" uid="uid://812udxdlvtoj" path="res://daLoneDrau-GDEng-ECS/ui/ui_animation_node.gd" id="3_iowo3"]
 [ext_resource type="PackedScene" uid="uid://dvoxt0hgjh7is" path="res://assets/modeling/earthworks.tscn" id="4_qrms8"]
 
@@ -13,6 +14,12 @@ ambient_light_color = Color(0.6, 0.58, 0.56, 1)
 fog_enabled = true
 fog_light_color = Color(0.62, 0.6, 0.58, 1)
 fog_density = 0.015
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5qu3j"]
+shader = ExtResource("3_8xedo")
+shader_parameter/bits = 5.0
+shader_parameter/matrix_size = 4.0
+shader_parameter/dither_strength = 1.0
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_wy0tn"]
 viewport_path = NodePath("Viewport3D")
@@ -77,6 +84,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.99, 0, 0)
 [node name="Backdrop" type="TextureRect" parent="." unique_id=1198605626]
 unique_name_in_owner = true
 texture_filter = 1
+material = SubResource("ShaderMaterial_5qu3j")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
