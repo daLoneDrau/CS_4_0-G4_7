@@ -61,7 +61,7 @@ const _ATTRIBUTE_MAX_BY_TIER: Dictionary[StringName, int] = {
 	TIER_HISTORIC: 20,
 	TIER_HEROIC: 22,
 	TIER_SUPER_HEROIC: 25,
-	}
+}
 
 ## PC Points starting pool per tier, point-based method only
 ## (Character_Creation_Expanded_Content.md §2 /
@@ -71,7 +71,7 @@ const _POOL_BY_TIER: Dictionary[StringName, int] = {
 	TIER_HISTORIC: 125,
 	TIER_HEROIC: 150,
 	TIER_SUPER_HEROIC: 175,
-	}
+}
 
 
 ## True once this entity's tier has been rolled/set. Distinguishes "never
@@ -173,5 +173,21 @@ static func spend(entity: Entity, amount: int) -> bool:
 ## a state this class should silently clamp and hide.
 static func refund(entity: Entity, amount: int) -> void:
 	entity.set_meta(KEY_POINTS_REMAINING, get_remaining(entity) + amount)
+
+#endregion
+
+## —————————————————————————————————————————————
+#region Reset
+## —————————————————————————————————————————————
+
+## Clears all tier/pool meta for this entity, restoring has_tier()/
+## has_pool() to false — as if chunk 2 had never mounted. Used by the
+## stepper's downstream-dependency reset flow (chargen_stepper.gd
+## reset_chunks()): a full reset of chunks 2-7 must actually clear this
+## data, not leave it stale from before the reset was triggered.
+static func reset(entity: Entity) -> void:
+	entity.remove_meta(KEY_TIER)
+	entity.remove_meta(KEY_POINTS_TOTAL)
+	entity.remove_meta(KEY_POINTS_REMAINING)
 
 #endregion

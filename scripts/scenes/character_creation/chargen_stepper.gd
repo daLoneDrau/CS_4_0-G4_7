@@ -164,14 +164,22 @@ func flag_downstream_and_confirm(from_index: int, through_index: int) -> void:
 
 
 ## Performs the actual reset. Called by character_creation.gd's
-## _on_confirm_pressed(). At the current stub level, chunks 2-7 persist
-## nothing to the Entity, so there's no real per-chunk data this can clear;
-## the one honest thing it can do today is drop the high-water mark, so
-## _furthest_index_reached > 0 correctly reads false again until the player
-## re-progresses past chunk 1. Revisit once chunks 2-7 have real fields/
-## components to actually clear.
-func reset_chunks(_from_index: int, _through_index: int) -> void:
+## _on_confirm_pressed(). Chunk 2 (index 1) now has real data
+## (CSCharacterComponent, PCPointsMeta) as of this session's Birth Omens
+## build — a full reset covering it must actually clear that data, not
+## just drop the progress marker as before. Guarded by range (rather than
+## unconditional) so a future partial reset that excludes chunk 2 doesn't
+## wrongly clear it; the one caller today (chunk 1's method-change flow)
+## always covers it in practice.
+func reset_chunks(from_index: int, through_index: int) -> void:
 	_furthest_index_reached = 0
+
+	if from_index <= 1 and 1 <= through_index:
+		var char_comp := _character.get_component(&"CSCharacterComponent") as CSCharacterComponent
+		if char_comp:
+			char_comp.aspect = CSCharacterComponent.DEFAULT_ASPECT
+			char_comp.aspect_determined = false
+		PCPointsMeta.reset(_character)
 
 
 ## Cancel-path counterpart to reset_chunks() — called by character_creation.gd's
