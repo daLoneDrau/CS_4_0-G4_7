@@ -140,7 +140,7 @@ func _mount_chunk(index: int) -> void:
 ## chunk 1 this session, chunks 2-7 need flagging for reset. Stores
 ## old_method for a possible later revert_pending_method_change() call —
 ## see that method and chunk_1_identity_method.gd's revert_to().
-func _on_creation_method_changed(old_method: String, new_method: String) -> void:
+func _on_creation_method_changed(old_method: String, _new_method: String) -> void:
 	if _furthest_index_reached > 0:
 		_pending_revert_old_method = old_method
 		flag_downstream_and_confirm(1, CHUNK_SCENE_PATHS.size() - 1)

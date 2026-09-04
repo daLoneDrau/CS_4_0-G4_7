@@ -42,7 +42,7 @@ const RACE_OPTIONS: Array[Dictionary] = [
 	{"label": "Human", "key": &"human", "enabled": true},
 	{"label": "Elf", "key": &"elf", "enabled": false},
 	{"label": "Dwarf", "key": &"dwarf", "enabled": false},
-	]
+]
 
 @onready var _chunk_label: Label = %ChunkLabel
 @onready var _race_dropdown: OptionButton = %RaceDropdown

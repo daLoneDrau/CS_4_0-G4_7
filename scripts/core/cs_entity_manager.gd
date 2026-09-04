@@ -42,6 +42,7 @@ func create_draft_character() -> Entity:
 	# CHARACTER_CREATION_UI_UX.md §4.
 	draft.set_component(CSRaceComponent.new())
 	draft.set_component(DescriptionComponent.new())
+	draft.set_component(CSCharacterComponent.new())
 
 	add_entity(draft)
 	add_entity_immediately(draft.id)
