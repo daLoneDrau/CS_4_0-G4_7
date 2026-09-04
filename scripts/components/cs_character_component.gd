@@ -46,6 +46,16 @@ signal aspect_changed(entity_id: String, old_aspect: StringName, new_aspect: Str
 				aspect_changed.emit(parent_entity_id, old, value)
 				emit_update_signal()
 
+## True once chunk 2 has resolved aspect by either creation method (random
+## roll or point-based default-to-Neutral). Unlike PCPointsMeta's tier,
+## which lives in Entity meta and can use has_meta() as its "never
+## touched" signal, aspect's own default (Neutral) is also D100's most
+## likely actual roll outcome, so the value alone can't distinguish
+## "never rolled" from "rolled and landed on the default." This flag is
+## the component-field equivalent of that has_meta() check — gates the
+## random method's roll-once-only behavior on chunk 2 mount.
+@export var aspect_determined: bool = false
+
 
 ## —————————————————————————————————————————————
 #region Initialization
@@ -105,12 +115,14 @@ func to_dict() -> Dictionary:
 		"key": get_class_name(),
 		"enabled": enabled,
 		"aspect": String(aspect),
+		"aspect_determined": aspect_determined,
 	}
 
 
 func from_dict(data: Dictionary) -> void:
 	super.from_dict(data)
 	aspect = StringName(data.get("aspect", DEFAULT_ASPECT))
+	aspect_determined = bool(data.get("aspect_determined", false))
 
 #endregion
 
